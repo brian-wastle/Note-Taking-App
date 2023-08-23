@@ -3,7 +3,9 @@ const path = require('path');
 const fs = require('fs');
 const uuid = require('./helpers/uuid');
 const repos = require("./db/repos.json")
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
+
+let repoIndex;
 
 const app = express();
 
@@ -14,9 +16,7 @@ app.use(express.static('public'));
 
 // app.use('/api', api);
 
-// app.get('/*', (req, res) => {
-//   res.sendFile(path.join(__dirname, './public/index.html'));
-// });
+
 
 app.get('/notes', (req, res) => 
   res.sendFile(path.join(__dirname, './public/notes.html')),
@@ -25,13 +25,7 @@ app.get('/notes', (req, res) =>
 
 
 app.get('/api/notes', (req, res) => {
-  fs.readFile('./db/repos.json', 'utf8', (err, data) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    res.send(data);
-  });  
+  res.json(repos);
 });
 
 
@@ -46,7 +40,6 @@ app.post('/api/notes', (req, res) => {
         text,
         id: uuid(),
       };
-      console.log(note.id);
     repos.push(note);
 
     // Convert the data to a string so we can save it
@@ -64,4 +57,36 @@ app.post('/api/notes', (req, res) => {
   }
 });
 
-app.listen(4000);
+app.delete('/api/notes/:id', (req, res) => {
+  // console.log(req.params.id);
+
+  repos.forEach(function (repo) {
+    repoIndex = repos.findIndex((repo) => {
+      
+      // console.log(repo.id);
+      repo.id === req.params.id;
+    })
+    
+  });
+  console.log(repoIndex);
+  repos.splice(repoIndex, 1);
+  const notesStrings = JSON.stringify(repos, null, 2);
+  fs.writeFile(`./db/repos.json`, notesStrings, (err) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json('Error in writing note to JSON file');
+    } else {
+      res.status(201).json('Note added successfully');
+    }
+  })
+
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, './public/index.html'));
+});
+
+app.listen(PORT);
+
+
+
