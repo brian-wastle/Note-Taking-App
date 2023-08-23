@@ -60,14 +60,7 @@ app.post('/api/notes', (req, res) => {
 app.delete('/api/notes/:id', (req, res) => {
   // console.log(req.params.id);
 
-  repos.forEach(function (repo) {
-    repoIndex = repos.findIndex((repo) => {
-      
-      // console.log(repo.id);
-      repo.id === req.params.id;
-    })
-    
-  });
+  let repoIndex = repos.map(function(repo) { return repo.id; }).indexOf(req.params.id);
   console.log(repoIndex);
   repos.splice(repoIndex, 1);
   const notesStrings = JSON.stringify(repos, null, 2);
