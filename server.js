@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const uuid = require('./helpers/uuid');
 const repos = require("./db/repos.json")
 const PORT = 4000;
 
@@ -43,7 +44,9 @@ app.post('/api/notes', (req, res) => {
     const note = {
         title,
         text,
+        id: uuid(),
       };
+      console.log(note.id);
     repos.push(note);
 
     // Convert the data to a string so we can save it
