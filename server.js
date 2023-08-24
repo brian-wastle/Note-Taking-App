@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const uuid = require('./helpers/uuid');
-const repos = require("./db/repos.json")
+const repos = require("./db/db.json")
 const PORT = process.env.PORT || 4000;
 
 let repoIndex;
@@ -46,7 +46,7 @@ app.post('/api/notes', (req, res) => {
     const notesStrings = JSON.stringify(repos, null, 2);
 
     // Write the string to a file
-    fs.writeFile(`./db/repos.json`, notesStrings, (err) => {
+    fs.writeFile(`./db/db.json`, notesStrings, (err) => {
       if (err) {
         console.error(err);
         res.status(500).json('Error in writing note to JSON file');
@@ -58,13 +58,10 @@ app.post('/api/notes', (req, res) => {
 });
 
 app.delete('/api/notes/:id', (req, res) => {
-  // console.log(req.params.id);
-
   let repoIndex = repos.map(function(repo) { return repo.id; }).indexOf(req.params.id);
-  console.log(repoIndex);
   repos.splice(repoIndex, 1);
   const notesStrings = JSON.stringify(repos, null, 2);
-  fs.writeFile(`./db/repos.json`, notesStrings, (err) => {
+  fs.writeFile(`./db/db.json`, notesStrings, (err) => {
     if (err) {
       console.error(err);
       res.status(500).json('Error in writing note to JSON file');
